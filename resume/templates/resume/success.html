@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Session - InterviewAI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .interview-container {
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        /* Video Section */
+        .video-section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-header {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .session-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .timer {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(16, 185, 129, 0.2);
+            padding: 0.5rem 0.75rem;
+            border-radius: 15px;
+            border: 1px solid #10b981;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .video-main {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4a5568, #2d3748);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .video-controls {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 1rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .control-btn.active {
+            background: #ef4444;
+        }
+
+        .control-btn.camera-off {
+            background: #ef4444;
+        }
+
+        .control-btn.mic-off {
+            background: #ef4444;
+        }
+
+        /* AI Section */
+        .ai-section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ai-header {
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ai-avatar {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 0.75rem 1rem;
+            border-radius: 18px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .message.ai {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.user {
+            background: #4a5568;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.system {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+            align-self: center;
+            text-align: center;
+            font-size: 0.9rem;
+            border-radius: 12px;
+        }
+
+        .typing-indicator {
+            display: none;
+            background: #4a5568;
+            padding: 1rem;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            max-width: 85%;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 0.3rem;
+            align-items: center;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #9ca3af;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .response-area {
+            padding: 1rem;
+            border-top: 1px solid #4a5568;
+            background: #1f2937;
+        }
+
+        .response-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .response-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .speak-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .speak-btn:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        .speak-btn.recording {
+            background: #ef4444;
+            animation: pulse 1s infinite;
+        }
+
+        .type-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid #4a5568;
+        }
+
+        .type-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .response-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #4a5568;
+            border-radius: 8px;
+            background: #374151;
+            color: white;
+            font-family: inherit;
+            resize: none;
+            min-height: 60px;
+        }
+
+        .response-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            margin-top: 0.5rem;
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: linear-gradient(135deg, #764ba2, #667eea);
+        }
+
+        .send-btn:disabled {
+            background: #4a5568;
+            cursor: not-allowed;
+        }
+
+        /* Progress Indicators */
+        .session-progress {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .interview-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 2fr 1fr;
+            }
+            
+            .video-controls {
+                bottom: 1rem;
+            }
+            
+            .control-btn {
+                width: 45px;
+                height: 45px;
+            }
+        }
+
+        /* Session States */
+        .session-waiting {
+            opacity: 0.7;
+        }
+
+        .session-active {
+            opacity: 1;
+        }
+
+        .session-ended {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="interview-container">
+        <!-- Video Section -->
+        <div class="video-section">
+            <div class="video-header">
+                <div class="session-info">
+                    <div class="timer" id="timer">05:00</div>
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span id="sessionStatus">Preparing...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="video-main">
+                <video id="userVideo" class="user-video" autoplay muted style="display: none;"></video>
+                <div id="videoPlaceholder" class="video-placeholder">
+                    <div class="avatar">👤</div>
+                    <p>Click camera to start video</p>
+                </div>
+            </div>
+
+            <div class="session-progress">
+                <div style="font-size: 0.9rem; margin-bottom: 0.25rem;">Session Progress</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="video-controls">
+                <button class="control-btn camera-off" id="cameraBtn" title="Toggle Camera">
+                    📹
+                </button>
+                <button class="control-btn mic-off" id="micBtn" title="Toggle Microphone">
+                    🎤
+                </button>
+                <button class="control-btn" id="settingsBtn" title="Settings">
+                    ⚙️
+                </button>
+                <button class="control-btn" id="endBtn" title="End Session" style="background: #ef4444;">
+                    📞
+                </button>
+            </div>
+        </div>
+
+        <!-- AI Section -->
+        <div class="ai-section">
+            <div class="ai-header">
+                <div class="ai-avatar">🤖</div>
+                <div>
+                    <div style="font-weight: 600;">InterviewAI Assistant</div>
+                    <div style="font-size: 0.85rem; opacity: 0.9;">AI Interviewer</div>
+                </div>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message system">
+                        🎯 Session ready! I'll ask you questions based on your resume. Click "Start Interview" when ready.
+                    </div>
+                </div>
+
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="response-area">
+                <div class="response-controls">
+                    <button class="response-btn speak-btn" id="speakBtn">🎙️ Speak</button>
+                    <button class="response-btn type-btn" id="typeBtn">⌨️ Type</button>
+                </div>
+
+                <div id="responseInput" style="display: none;">
+                    <textarea class="response-input" id="textResponse" placeholder="Type your response here..."></textarea>
+                    <button class="send-btn" id="sendBtn">Send Response</button>
+                </div>
+
+                <div id="startSection">
+                    <button class="send-btn" id="startInterviewBtn">🚀 Start Interview</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class AIVideoInterview {
+            constructor() {
+                this.sessionDuration = 5 * 60; // 5 minutes in seconds
+                this.currentTime = this.sessionDuration;
+                this.sessionActive = false;
+                this.cameraActive = false;
+                this.micActive = false;
+                this.currentQuestion = 0;
+                this.questions = [];
+                this.responses = [];
+                this.stream = null;
+                this.recognition = null;
+                this.isListening = false;
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.generateQuestions();
+                this.setupSpeechRecognition();
+            }
+
+            initializeElements() {
+                this.timerEl = document.getElementById('timer');
+                this.statusEl = document.getElementById('sessionStatus');
+                this.progressFillEl = document.getElementById('progressFill');
+                this.userVideoEl = document.getElementById('userVideo');
+                this.videoPlaceholderEl = document.getElementById('videoPlaceholder');
+                this.chatMessagesEl = document.getElementById('chatMessages');
+                this.typingIndicatorEl = document.getElementById('typingIndicator');
+                this.cameraBtn = document.getElementById('cameraBtn');
+                this.micBtn = document.getElementById('micBtn');
+                this.endBtn = document.getElementById('endBtn');
+                this.speakBtn = document.getElementById('speakBtn');
+                this.typeBtn = document.getElementById('typeBtn');
+                this.responseInputEl = document.getElementById('responseInput');
+                this.textResponseEl = document.getElementById('textResponse');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.startBtn = document.getElementById('startInterviewBtn');
+                this.startSectionEl = document.getElementById('startSection');
+            }
+
+            setupEventListeners() {
+                this.cameraBtn.addEventListener('click', () => this.toggleCamera());
+                this.micBtn.addEventListener('click', () => this.toggleMicrophone());
+                this.endBtn.addEventListener('click', () => this.endSession());
+                this.speakBtn.addEventListener('click', () => this.toggleSpeechRecognition());
+                this.typeBtn.addEventListener('click', () => this.toggleTyping());
+                this.sendBtn.addEventListener('click', () => this.sendResponse());
+                this.startBtn.addEventListener('click', () => this.startInterview());
+                
+                this.textResponseEl.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendResponse();
+                    }
+                });
+            }
+
+            async generateQuestions() {
+                // Simulate questions based on resume (in real implementation, call your Django backend)
+                this.questions = [
+                    "Tell me about yourself and your professional background.",
+                    "What interests you most about this type of role?",
+                    "Describe a challenging project you've worked on recently.",
+                    "How do you handle working under pressure?",
+                    "Where do you see yourself in the next 5 years?"
+                ];
+                
+                console.log('Generated questions:', this.questions);
+            }
+
+            setupSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+                    this.recognition.continuous = false;
+                    this.recognition.interimResults = true;
+                    this.recognition.lang = 'en-US';
+
+                    this.recognition.onresult = (event) => {
+                        const transcript = Array.from(event.results)
+                            .map(result => result[0])
+                            .map(result => result.transcript)
+                            .join('');
+
+                        if (event.results[0].isFinal) {
+                            this.handleSpeechResult(transcript);
+                        }
+                    };
+
+                    this.recognition.onerror = (event) => {
+                        console.error('Speech recognition error:', event.error);
+                        this.stopListening();
+                    };
+
+                    this.recognition.onend = () => {
+                        this.stopListening();
+                    };
+                } else {
+                    console.warn('Speech recognition not supported');
+                    this.speakBtn.style.display = 'none';
+                }
+            }
+
+            async toggleCamera() {
+                if (!this.cameraActive) {
+                    try {
+                        this.stream = await navigator.mediaDevices.getUserMedia({ 
+                            video: true, 
+                            audio: false 
+                        });
+                        this.userVideoEl.srcObject = this.stream;
+                        this.userVideoEl.style.display = 'block';
+                        this.videoPlaceholderEl.style.display = 'none';
+                        this.cameraBtn.classList.remove('camera-off');
+                        this.cameraActive = true;
+                        this.cameraBtn.title = 'Turn Off Camera';
+                    } catch (error) {
+                        console.error('Error accessing camera:', error);
+                        this.addMessage('system', '⚠️ Camera access denied. You can still participate with audio only.');
+                    }
+                } else {
+                    if (this.stream) {
+                        this.stream.getVideoTracks().forEach(track => track.stop());
+                    }
+                    this.userVideoEl.style.display = 'none';
+                    this.videoPlaceholderEl.style.display = 'flex';
+                    this.cameraBtn.classList.add('camera-off');
+                    this.cameraActive = false;
+                    this.cameraBtn.title = 'Turn On Camera';
+                }
+            }
+
+            async toggleMicrophone() {
+                if (!this.micActive) {
+                    try {
+                        const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        this.micBtn.classList.remove('mic-off');
+                        this.micActive = true;
+                        this.micBtn.title = 'Mute Microphone';
+                        // Store audio stream for speech recognition
+                        this.audioStream = audioStream;
+                    } catch (error) {
+                        console.error('Error accessing microphone:', error);
+                        this.addMessage('system', '⚠️ Microphone access denied. Please use text responses.');
+                    }
+                } else {
+                    if (this.audioStream) {
+                        this.audioStream.getAudioTracks().forEach(track => track.stop());
+                    }
+                    this.micBtn.classList.add('mic-off');
+                    this.micActive = false;
+                    this.micBtn.title = 'Unmute Microphone';
+                }
+            }
+
+            toggleSpeechRecognition() {
+                if (!this.isListening && this.micActive) {
+                    this.startListening();
+                } else {
+                    this.stopListening();
+                }
+            }
+
+            startListening() {
+                if (this.recognition && !this.isListening) {
+                    this.isListening = true;
+                    this.speakBtn.classList.add('recording');
+                    this.speakBtn.textContent = '🔴 Recording...';
+                    this.recognition.start();
+                }
+            }
+
+            stopListening() {
+                if (this.recognition && this.isListening) {
+                    this.isListening = false;
+                    this.speakBtn.classList.remove('recording');
+                    this.speakBtn.textContent = '🎙️ Speak';
+                    this.recognition.stop();
+                }
+            }
+
+            handleSpeechResult(transcript) {
+                if (transcript.trim()) {
+                    this.addMessage('user', transcript);
+                    this.responses.push(transcript);
+                    this.processResponse();
+                }
+            }
+
+            toggleTyping() {
+                const isVisible = this.responseInputEl.style.display !== 'none';
+                this.responseInputEl.style.display = isVisible ? 'none' : 'block';
+                if (!isVisible) {
+                    this.textResponseEl.focus();
+                }
+            }
+
+            sendResponse() {
+                const response = this.textResponseEl.value.trim();
+                if (response) {
+                    this.addMessage('user', response);
+                    this.responses.push(response);
+                    this.textResponseEl.value = '';
+                    this.responseInputEl.style.display = 'none';
+                    this.processResponse();
+                }
+            }
+
+            async startInterview() {
+                this.sessionActive = true;
+                this.statusEl.textContent = 'Interview Active';
+                this.startSectionEl.style.display = 'none';
+                
+                this.addMessage('system', '🎬 Interview started! Good luck!');
+                
+                // Start timer
+                this.startTimer();
+                
+                // Ask first question
+                setTimeout(() => this.askNextQuestion(), 1000);
+            }
+
+            startTimer() {
+                this.timerInterval = setInterval(() => {
+                    this.currentTime--;
+                    this.updateTimer();
+                    this.updateProgress();
+                    
+                    if (this.currentTime <= 0) {
+                        this.endSession();
+                    }
+                }, 1000);
+            }
+
+            updateTimer() {
+                const minutes = Math.floor(this.currentTime / 60);
+                const seconds = this.currentTime % 60;
+                this.timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Change color when time is running low
+                if (this.currentTime <= 60) {
+                    this.timerEl.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                }
+            }
+
+            updateProgress() {
+                const progress = ((this.sessionDuration - this.currentTime) / this.sessionDuration) * 100;
+                this.progressFillEl.style.width = `${progress}%`;
+            }
+
+            async askNextQuestion() {
+                if (this.currentQuestion < this.questions.length && this.sessionActive) {
+                    this.showTyping();
+                    
+                    // Simulate AI thinking time
+                    await this.delay(1500);
+                    
+                    this.hideTyping();
+                    this.addMessage('ai', this.questions[this.currentQuestion]);
+                    this.currentQuestion++;
+                    
+                    // Speak the question (if supported)
+                    this.speakText(this.questions[this.currentQuestion - 1]);
+                }
+            }
+
+            speakText(text) {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1;
+                    speechSynthesis.speak(utterance);
+                }
+            }
+
+            async processResponse() {
+                if (!this.sessionActive) return;
+                
+                this.showTyping();
+                
+                // Simulate AI processing time
+                await this.delay(2000);
+                
+                this.hideTyping();
+                
+                // Provide feedback or ask next question
+                if (this.currentQuestion < this.questions.length) {
+                    const feedback = this.generateFeedback();
+                    if (feedback) {
+                        this.addMessage('ai', feedback);
+                        await this.delay(1000);
+                    }
+                    this.askNextQuestion();
+                } else {
+                    this.addMessage('ai', "Thank you for your responses! I'm analyzing your performance and will provide detailed feedback shortly.");
+                    setTimeout(() => this.endSession(), 3000);
+                }
+            }
+
+            generateFeedback() {
+                const feedbacks = [
+                    "Great answer! Let's move to the next question.",
+                    "I appreciate the detail in your response.",
+                    "Interesting perspective. Here's another question:",
+                    "Good examples. Let's continue.",
+                    ""
+                ];
+                
+                return feedbacks[Math.floor(Math.random() * feedbacks.length)];
+            }
+
+            addMessage(type, content) {
+                const messageEl = document.createElement('div');
+                messageEl.className = `message ${type}`;
+                messageEl.textContent = content;
+                
+                this.chatMessagesEl.appendChild(messageEl);
+                this.chatMessagesEl.scrollTop = this.chatMessagesEl.scrollHeight;
+            }
+
+            showTyping() {
+                this.typingIndicatorEl.style.display = 'block';
+                this.chatMessagesEl.scrollTop = this.chatMessagesEl.scrollHeight;
+            }
+
+            hideTyping() {
+                this.typingIndicatorEl.style.display = 'none';
+            }
+
+            endSession() {
+                this.sessionActive = false;
+                this.statusEl.textContent = 'Session Ended';
+                
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                }
+                
+                // Stop all media streams
+                if (this.stream) {
+                    this.stream.getTracks().forEach(track => track.stop());
+                }
+                if (this.audioStream) {
+                    this.audioStream.getTracks().forEach(track => track.stop());
+                }
+                
+                this.addMessage('system', '🎉 Interview completed! Generating your performance report...');
+                
+                // Simulate report generation
+                setTimeout(() => {
+                    this.generateReport();
+                }, 3000);
+            }
+
+            generateReport() {
+                const report = {
+                    duration: this.sessionDuration - this.currentTime,
+                    questionsAnswered: this.responses.length,
+                    responses: this.responses
+                };
+                
+                this.addMessage('system', `📊 Interview Report Ready!\n\n✅ Questions Answered: ${report.questionsAnswered}\n⏱️ Time Used: ${Math.floor(report.duration / 60)}:${(report.duration % 60).toString().padStart(2, '0')}\n\n🔗 Detailed feedback will be available shortly.`);
+                
+                // In real implementation, send data to Django backend
+                console.log('Interview Report:', report);
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        // Initialize the interview system
+        document.addEventListener('DOMContentLoaded', () => {
+            new AIVideoInterview();
+        });
+    </script>
+</body>
+</html>

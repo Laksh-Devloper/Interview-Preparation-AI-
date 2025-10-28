@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Results - InterviewAI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+        }
+
+        /* Results Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Score Card */
+        .score-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: slideInLeft 0.8s ease-out 0.2s both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .score-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #10b981 0deg, #10b981 var(--score-angle), #e5e7eb var(--score-angle));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            position: relative;
+        }
+
+        .score-circle::after {
+            content: '';
+            width: 90px;
+            height: 90px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .score-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #10b981;
+            z-index: 1;
+        }
+
+        .score-label {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .performance-level {
+            font-size: 1.3rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            display: inline-block;
+        }
+
+        .excellent {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .good {
+            background: rgba(59, 130, 246, 0.1);
+            color: #1e40af;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .needs-improvement {
+            background: rgba(245, 158, 11, 0.1);
+            color: #92400e;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        /* Session Stats */
+        .session-stats {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: slideInRight 0.8s ease-out 0.2s both;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        /* Full Width Cards */
+        .feedback-card, .recommendations-card, .qa-review-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        /* Strengths & Weaknesses */
+        .feedback-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .strength-item, .weakness-item {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .strength-item {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .weakness-item {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .feedback-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+
+        .feedback-text {
+            flex: 1;
+            line-height: 1.6;
+            color: #374151;
+        }
+
+        /* Recommendations */
+        .recommendation-item {
+            background: #f8fafc;
+            border-left: 4px solid #667eea;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0 12px 12px 0;
+            transition: all 0.3s ease;
+        }
+
+        .recommendation-item:hover {
+            background: #f1f5f9;
+            transform: translateX(5px);
+        }
+
+        .recommendation-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .recommendation-desc {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        /* Q&A Review */
+        .qa-item {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .question {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .answer {
+            color: #6b7280;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            line-height: 1.6;
+        }
+
+        .answer-feedback {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 0.75rem;
+            border-radius: 8px;
+            color: #065f46;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 3rem;
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+
+        .action-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background: linear-gradient(135deg, #764ba2, #667eea);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .secondary-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .secondary-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Loading States */
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 8px;
+            height: 20px;
+            margin-bottom: 0.5rem;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feedback-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .score-circle {
+                width: 100px;
+                height: 100px;
+            }
+
+            .score-circle::after {
+                width: 75px;
+                height: 75px;
+            }
+
+            .score-number {
+                font-size: 1.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .action-btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎉 Interview Complete!</h1>
+            <p>Here's your detailed performance analysis and feedback</p>
+        </div>
+
+        <!-- Results Grid -->
+        <div class="results-grid">
+            <!-- Score Card -->
+            <div class="score-card">
+                <div class="score-circle" id="scoreCircle" style="--score-angle: 252deg;">
+                    <div class="score-number" id="scoreNumber">7.8</div>
+                </div>
+                <div class="score-label">Overall Interview Score</div>
+                <div class="performance-level good" id="performanceLevel">Good Performance</div>
+            </div>
+
+            <!-- Session Stats -->
+            <div class="session-stats">
+                <div class="card-title">📊 Session Statistics</div>
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span>⏱️</span>
+                        Duration
+                    </div>
+                    <div class="stat-value" id="sessionDuration">4:32</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span>❓</span>
+                        Questions Answered
+                    </div>
+                    <div class="stat-value" id="questionsAnswered">5/5</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span>💬</span>
+                        Average Response Time
+                    </div>
+                    <div class="stat-value" id="avgResponseTime">24s</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span>🎯</span>
+                        Relevance Score
+                    </div>
+                    <div class="stat-value" id="relevanceScore">85%</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span>📈</span>
+                        Confidence Level
+                    </div>
+                    <div class="stat-value" id="confidenceLevel">High</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Report Card (if available) -->
+        {% if interview_data_json %}
+        <div class="feedback-card" id="aiReportCard" style="display: none;">
+            <div class="card-title">🤖 AI Performance Analysis</div>
+            <div id="aiReportContent" style="
+                background: #f8fafc;
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #667eea;
+                line-height: 1.6;
+                color: #374151;
+                white-space: pre-line;
+            ">
+                Loading AI analysis...
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Feedback Card -->
+        <div class="feedback-card">
+            <div class="card-title">💡 Strengths & Areas for Improvement</div>
+            <div class="feedback-grid">
+                <div>
+                    <h3 style="color: #059669; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span>✅</span> Your Strengths
+                    </h3>
+                    <div id="strengthsList">
+                        <div class="strength-item">
+                            <span class="feedback-icon">🎯</span>
+                            <div class="feedback-text">
+                                <strong>Clear Communication:</strong> Your responses were well-structured and easy to follow. You articulated your thoughts clearly and provided specific examples.
+                            </div>
+                        </div>
+                        <div class="strength-item">
+                            <span class="feedback-icon">💪</span>
+                            <div class="feedback-text">
+                                <strong>Technical Knowledge:</strong> Demonstrated solid understanding of relevant technologies and concepts mentioned in your resume.
+                            </div>
+                        </div>
+                        <div class="strength-item">
+                            <span class="feedback-icon">🎭</span>
+                            <div class="feedback-text">
+                                <strong>Professional Demeanor:</strong> Maintained good eye contact and professional body language throughout the interview.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="color: #d97706; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span>📈</span> Areas for Improvement
+                    </h3>
+                    <div id="weaknessesList">
+                        <div class="weakness-item">
+                            <span class="feedback-icon">⏰</span>
+                            <div class="feedback-text">
+                                <strong>Response Timing:</strong> Some responses could be more concise. Practice delivering key points within 60-90 seconds.
+                            </div>
+                        </div>
+                        <div class="weakness-item">
+                            <span class="feedback-icon">📚</span>
+                            <div class="feedback-text">
+                                <strong>Specific Examples:</strong> Include more quantifiable achievements and specific project outcomes in your answers.
+                            </div>
+                        </div>
+                        <div class="weakness-item">
+                            <span class="feedback-icon">❓</span>
+                            <div class="feedback-text">
+                                <strong>Question Clarification:</strong> Don't hesitate to ask for clarification when needed - it shows engagement.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations Card -->
+        <div class="recommendations-card">
+            <div class="card-title">🚀 Actionable Recommendations</div>
+            <div id="recommendationsList">
+                <div class="recommendation-item">
+                    <div class="recommendation-title">
+                        <span>📝</span>
+                        Prepare STAR Stories
+                    </div>
+                    <div class="recommendation-desc">
+                        Develop 3-5 compelling stories using the STAR method (Situation, Task, Action, Result) to showcase your achievements with specific metrics and outcomes.
+                    </div>
+                </div>
+                <div class="recommendation-item">
+                    <div class="recommendation-title">
+                        <span>🎬</span>
+                        Practice Video Interviews
+                    </div>
+                    <div class="recommendation-desc">
+                        Record yourself answering common questions to improve your on-camera presence and reduce response time while maintaining clarity.
+                    </div>
+                </div>
+                <div class="recommendation-item">
+                    <div class="recommendation-title">
+                        <span>🔍</span>
+                        Research Company Culture
+                    </div>
+                    <div class="recommendation-desc">
+                        Spend time understanding the company's values, recent news, and culture to provide more tailored responses that show genuine interest.
+                    </div>
+                </div>
+                <div class="recommendation-item">
+                    <div class="recommendation-title">
+                        <span>💡</span>
+                        Prepare Thoughtful Questions
+                    </div>
+                    <div class="recommendation-desc">
+                        Prepare 3-4 insightful questions about the role, team dynamics, or company direction to demonstrate your serious interest and engagement.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q&A Review Card -->
+        <div class="qa-review-card">
+            <div class="card-title">🔍 Question & Answer Review</div>
+            <div id="qaReviewList">
+                <div class="qa-item">
+                    <div class="question">
+                        Q1: Tell me about yourself and your professional background.
+                    </div>
+                    <div class="answer">
+                        "I'm a software developer with 3 years of experience in web development. I've worked primarily with JavaScript and Python, building both frontend and backend applications. In my current role at XYZ Company, I've been responsible for developing user-facing features and optimizing database queries..."
+                    </div>
+                    <div class="answer-feedback">
+                        <strong>✅ Good:</strong> Clear structure and relevant experience mentioned. <strong>💡 Tip:</strong> Include specific achievements or metrics to make your background more compelling.
+                    </div>
+                </div>
+                <div class="qa-item">
+                    <div class="question">
+                        Q2: What interests you most about this type of role?
+                    </div>
+                    <div class="answer">
+                        "I'm particularly excited about the opportunity to work with modern technologies and contribute to innovative projects. I enjoy solving complex problems and collaborating with cross-functional teams..."
+                    </div>
+                    <div class="answer-feedback">
+                        <strong>✅ Good:</strong> Shows enthusiasm and mentions collaboration. <strong>💡 Tip:</strong> Connect your interests more specifically to the company and role requirements.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="#" class="action-btn primary-btn" id="retakeBtn">
+                <span>🔄</span>
+                Take Another Practice Interview
+            </a>
+            <a href="#" class="action-btn secondary-btn" id="downloadBtn">
+                <span>📄</span>
+                Download Detailed Report
+            </a>
+            <a href="/" class="action-btn secondary-btn">
+                <span>🏠</span>
+                Back to Home
+            </a>
+        </div>
+    </div>
+
+    {% if interview_data_json %}
+    <script id="interview-data" type="application/json">
+        {{ interview_data_json|safe }}
+    </script>
+    {% endif %}
+
+    <script>
+        class InterviewResults {
+            constructor() {
+                this.initializeResults();
+                this.animateScore();
+                this.setupEventListeners();
+                this.loadResults();
+            }
+
+            initializeResults() {
+                // Get interview data from session storage or API
+                this.interviewData = this.getInterviewData();
+                this.populateResults();
+            }
+
+            getInterviewData() {
+                console.log("=== Getting Interview Data ==="); // Debug log
+                
+                // Try to get data from Django JSON script tag first
+                const scriptTag = document.getElementById('interview-data');
+                if (scriptTag) {
+                    try {
+                        const djangoData = JSON.parse(scriptTag.textContent);
+                        console.log("Django data found:", djangoData); // Debug log
+                        return this.processDjangoData(djangoData);
+                    } catch (e) {
+                        console.error('Error parsing Django data:', e);
+                    }
+                }
+                
+                // Fallback to sessionStorage if Django data not available
+                const sessionData = sessionStorage.getItem('interviewResults');
+                if (sessionData) {
+                    try {
+                        const parsedSessionData = JSON.parse(sessionData);
+                        console.log("Session storage data found:", parsedSessionData); // Debug log
+                        return this.processSessionData(parsedSessionData);
+                    } catch (e) {
+                        console.error('Error parsing session data:', e);
+                    }
+                }
+                
+                console.log("No interview data found"); // Debug log
+                
+                // Last resort: show message that no data is available
+                this.showNoDataMessage();
+                
+                // Return default data
+                return {
+                    score: 0,
+                    performanceLevel: 'No Data Available',
+                    duration: '0:00',
+                    questionsAnswered: '0/0',
+                    avgResponseTime: '0s',
+                    relevanceScore: '0%',
+                    confidenceLevel: 'Unknown',
+                    strengths: [],
+                    improvements: [],
+                    qaReview: []
+                };
+            }
+
+            showNoDataMessage() {
+                // Show message that no interview data is available
+                const container = document.querySelector('.container');
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 4rem; color: white;">
+                        <h1>⚠️ No Interview Data Found</h1>
+                        <p style="margin: 2rem 0; font-size: 1.2rem; opacity: 0.9;">
+                            It looks like you haven't completed an interview session yet.
+                        </p>
+                        <a href="/upload/" style="
+                            display: inline-block;
+                            background: linear-gradient(135deg, #667eea, #764ba2);
+                            color: white;
+                            padding: 1rem 2rem;
+                            text-decoration: none;
+                            border-radius: 50px;
+                            font-weight: 600;
+                            margin-top: 1rem;
+                        ">
+                            Start New Interview
+                        </a>
+                    </div>
+                `;
+            }
+
+            processDjangoData(data) {
+                const score = parseFloat(data.score) || 0;
+                const performanceLevel = this.getPerformanceLevel(score);
+                
+                return {
+                    score: score,
+                    performanceLevel: performanceLevel,
+                    duration: data.duration || '0:00',
+                    questionsAnswered: `${data.questions_answered || 0}/${data.total_questions || 0}`,
+                    avgResponseTime: data.session_data?.avg_response_time || '0s',
+                    relevanceScore: `${Math.round(data.session_data?.completion_rate || 0)}%`,
+                    confidenceLevel: this.getConfidenceLevel(score),
+                    strengths: data.feedback?.strengths || this.generateStrengths(data),
+                    improvements: data.feedback?.improvements || this.generateImprovements(data),
+                    qaReview: this.formatQAReview(data.questions, data.responses),
+                    ai_report: data.ai_report || null  // Add AI report
+                };
+            }
+
+            processSessionData(data) {
+                const score = parseFloat(data.score) || 0;
+                const performanceLevel = this.getPerformanceLevel(score);
+                
+                return {
+                    score: score,
+                    performanceLevel: performanceLevel,
+                    duration: data.duration || '0:00',
+                    questionsAnswered: `${data.questions_answered || 0}/${data.total_questions || 0}`,
+                    avgResponseTime: data.session_data?.avg_response_time || '0s',
+                    relevanceScore: `${Math.round(data.session_data?.completion_rate || 0)}%`,
+                    confidenceLevel: this.getConfidenceLevel(score),
+                    strengths: this.generateStrengths(data),
+                    improvements: this.generateImprovements(data),
+                    qaReview: this.formatQAReview(data.questions, data.responses),
+                    ai_report: data.ai_report || null  // Add AI report
+                };
+            }
+
+            getPerformanceLevel(score) {
+                if (score >= 8.5) return 'Excellent Performance';
+                if (score >= 7.0) return 'Good Performance';
+                if (score >= 5.5) return 'Average Performance';
+                return 'Needs Improvement';
+            }
+
+            getConfidenceLevel(score) {
+                if (score >= 8.0) return 'High';
+                if (score >= 6.0) return 'Medium';
+                return 'Low';
+            }
+
+            generateStrengths(data) {
+                const strengths = [];
+                
+                console.log("Generating strengths from data:", data); // Debug log
+                
+                // Check completion rate
+                if (data.questions_answered === data.total_questions) {
+                    strengths.push({
+                        title: 'Complete Participation',
+                        description: `You answered all ${data.questions_answered} questions in the interview, showing strong engagement and preparation.`
+                    });
+                }
+                
+                // Check response length/quality using actual responses
+                if (data.responses && data.responses.length > 0) {
+                    console.log("Analyzing responses:", data.responses); // Debug log
+                    
+                    const avgLength = data.responses.reduce((sum, resp) => sum + resp.length, 0) / data.responses.length;
+                    console.log("Average response length:", avgLength); // Debug log
+                    
+                    if (avgLength > 100) {
+                        strengths.push({
+                            title: 'Detailed Responses',
+                            description: `Your responses averaged ${Math.round(avgLength)} characters, showing comprehensive and well-thought answers.`
+                        });
+                    }
+                    
+                    // Check for specific keywords that indicate good practices
+                    const allResponses = data.responses.join(' ').toLowerCase();
+                    const experienceKeywords = ['project', 'experience', 'achieved', 'implemented', 'developed', 'managed', 'led', 'created', 'worked'];
+                    const foundKeywords = experienceKeywords.filter(keyword => allResponses.includes(keyword));
+                    
+                    if (foundKeywords.length > 0) {
+                        strengths.push({
+                            title: 'Experience-Based Answers',
+                            description: `You effectively used specific examples and experiences, mentioning: ${foundKeywords.slice(0, 3).join(', ')}.`
+                        });
+                    }
+                    
+                    // Check for confidence indicators
+                    const confidenceWords = ['confident', 'sure', 'definitely', 'absolutely', 'certainly'];
+                    const hasConfidence = confidenceWords.some(word => allResponses.includes(word));
+                    if (hasConfidence) {
+                        strengths.push({
+                            title: 'Confident Communication',
+                            description: 'Your responses showed confidence and certainty in your abilities and decisions.'
+                        });
+                    }
+                }
+                
+                // If no specific strengths found, add general positive feedback
+                if (strengths.length === 0) {
+                    strengths.push({
+                        title: 'Interview Participation',
+                        description: `You completed the interview process and provided ${data.questions_answered || 0} responses.`
+                    });
+                }
+                
+                console.log("Generated strengths:", strengths); // Debug log
+                return strengths;
+            }
+
+            generateImprovements(data) {
+                const improvements = [];
+                
+                console.log("Generating improvements from data:", data); // Debug log
+                
+                // Check completion rate
+                if (data.questions_answered < data.total_questions) {
+                    improvements.push({
+                        title: 'Complete All Questions',
+                        description: `You answered ${data.questions_answered} out of ${data.total_questions} questions. Try to answer all questions within the time limit.`
+                    });
+                }
+                
+                // Check response length using actual responses
+                if (data.responses && data.responses.length > 0) {
+                    const avgLength = data.responses.reduce((sum, resp) => sum + resp.length, 0) / data.responses.length;
+                    const shortResponses = data.responses.filter(resp => resp.length < 50).length;
+                    
+                    if (avgLength < 75) {
+                        improvements.push({
+                            title: 'Expand Your Responses',
+                            description: `Your average response length was ${Math.round(avgLength)} characters. Consider providing more detailed answers with specific examples.`
+                        });
+                    }
+                    
+                    if (shortResponses > 0) {
+                        improvements.push({
+                            title: 'Avoid Short Answers',
+                            description: `${shortResponses} of your responses were quite brief. Elaborate more on your experiences and thoughts.`
+                        });
+                    }
+                    
+                    // Check for missing examples
+                    const allResponses = data.responses.join(' ').toLowerCase();
+                    if (!/example|experience|project|time when/i.test(allResponses)) {
+                        improvements.push({
+                            title: 'Use Specific Examples',
+                            description: 'Include more concrete examples from your experience to make your responses more compelling and memorable.'
+                        });
+                    }
+                }
+                
+                // Time management
+                if (data.duration) {
+                    const [minutes, seconds] = data.duration.split(':').map(Number);
+                    const totalSeconds = minutes * 60 + seconds;
+                    if (totalSeconds < 180) { // Less than 3 minutes
+                        improvements.push({
+                            title: 'Take More Time',
+                            description: `You completed the interview in ${data.duration}. Consider taking more time to think through and elaborate on your answers.`
+                        });
+                    }
+                }
+                
+                console.log("Generated improvements:", improvements); // Debug log
+                return improvements;
+            }
+
+            formatQAReview(questions, responses) {
+                console.log("Formatting Q&A - Questions:", questions, "Responses:", responses); // Debug log
+                
+                if (!questions || !responses) {
+                    console.log("Missing questions or responses"); // Debug log
+                    return [];
+                }
+                
+                const qaReview = [];
+                const maxItems = Math.min(questions.length, responses.length);
+                
+                for (let i = 0; i < maxItems; i++) {
+                    const response = responses[i];
+                    const question = questions[i];
+                    
+                    qaReview.push({
+                        question: question,
+                        answer: response.length > 300 ? response.substring(0, 300) + '...' : response,
+                        feedback: this.generateRealAnswerFeedback(response, question)
+                    });
+                }
+                
+                console.log("Formatted Q&A review:", qaReview); // Debug log
+                return qaReview;
+            }
+
+            generateRealAnswerFeedback(answer, question) {
+                if (!answer || answer.trim().length === 0) {
+                    return "No response provided for this question.";
+                }
+                
+                const feedback = [];
+                const answerLower = answer.toLowerCase();
+                
+                // Length feedback
+                if (answer.length > 150) {
+                    feedback.push("✅ Comprehensive response");
+                } else if (answer.length < 50) {
+                    feedback.push("⚠️ Consider providing more detail");
+                }
+                
+                // Content analysis
+                if (/example|for instance|specifically|when i/i.test(answer)) {
+                    feedback.push("✅ Used specific examples");
+                }
+                
+                if (/experience|worked|project|role|responsibility/i.test(answer)) {
+                    feedback.push("✅ Referenced relevant experience");
+                }
+                
+                // Improvement suggestions
+                if (answer.length < 100) {
+                    feedback.push("💡 Tip: Expand with more specific details");
+                }
+                
+                if (!/\b(I|my|me)\b/.test(answer)) {
+                    feedback.push("💡 Tip: Use more personal examples");
+                }
+                
+                return feedback.length > 0 ? feedback.join(' • ') : "Good response structure.";
+            }
+
+            async fetchInterviewResults() {
+                try {
+                    const response = await fetch('/api/get-results/');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.interviewData = this.processDjangoData(data.results);
+                        this.populateResults();
+                        this.animateScore();
+                    }
+                } catch (error) {
+                    console.error('Error fetching results:', error);
+                }
+            }
+
+            populateResults() {
+                try {
+                    // Safely update score and performance level
+                    const scoreElement = document.getElementById('scoreNumber');
+                    const performanceElement = document.getElementById('performanceLevel');
+                    
+                    if (scoreElement) {
+                        scoreElement.textContent = this.interviewData.score.toFixed(1);
+                    }
+                    if (performanceElement) {
+                        performanceElement.textContent = this.interviewData.performanceLevel;
+                        
+                        // Set performance level class
+                        if (this.interviewData.score >= 8.5) {
+                            performanceElement.className = 'performance-level excellent';
+                        } else if (this.interviewData.score >= 7.0) {
+                            performanceElement.className = 'performance-level good';
+                        } else {
+                            performanceElement.className = 'performance-level needs-improvement';
+                        }
+                    }
+                    
+                    // Safely update stats
+                    this.safeUpdateElement('sessionDuration', this.interviewData.duration);
+                    this.safeUpdateElement('questionsAnswered', this.interviewData.questionsAnswered);
+                    this.safeUpdateElement('avgResponseTime', this.interviewData.avgResponseTime);
+                    this.safeUpdateElement('relevanceScore', this.interviewData.relevanceScore);
+                    this.safeUpdateElement('confidenceLevel', this.interviewData.confidenceLevel);
+                    
+                    // Populate sections
+                    this.populateStrengths();
+                    this.populateImprovements();
+                    this.populateQAReview();
+                    this.showAIReport();
+                    
+                } catch (error) {
+                    console.error('Error populating results:', error);
+                    this.handlePopulationError();
+                }
+            }
+
+            showAIReport() {
+                const aiReportCard = document.getElementById('aiReportCard');
+                const aiReportContent = document.getElementById('aiReportContent');
+                
+                if (aiReportCard && aiReportContent && this.interviewData.ai_report) {
+                    aiReportContent.textContent = this.interviewData.ai_report;
+                    aiReportCard.style.display = 'block';
+                }
+            }
+
+            safeUpdateElement(elementId, content) {
+                const element = document.getElementById(elementId);
+                if (element && content !== undefined && content !== null) {
+                    element.textContent = content;
+                }
+            }
+
+            handlePopulationError() {
+                // Show error message if population fails
+                const container = document.querySelector('.container');
+                if (container) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 4rem; color: white;">
+                            <h1>⚠️ Error Loading Results</h1>
+                            <p style="margin: 2rem 0; font-size: 1.2rem; opacity: 0.9;">
+                                There was an issue loading your interview results.
+                            </p>
+                            <div style="margin: 2rem 0;">
+                                <button onclick="location.reload()" style="
+                                    background: linear-gradient(135deg, #667eea, #764ba2);
+                                    color: white;
+                                    padding: 1rem 2rem;
+                                    border: none;
+                                    border-radius: 50px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    margin-right: 1rem;
+                                ">
+                                    Reload Page
+                                </button>
+                                <a href="/upload/" style="
+                                    background: rgba(255, 255, 255, 0.2);
+                                    color: white;
+                                    padding: 1rem 2rem;
+                                    text-decoration: none;
+                                    border-radius: 50px;
+                                    font-weight: 600;
+                                    display: inline-block;
+                                ">
+                                    Start New Interview
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            populateStrengths() {
+                const strengthsList = document.getElementById('strengthsList');
+                if (!strengthsList) return;
+                
+                strengthsList.innerHTML = '';
+                
+                if (this.interviewData.strengths && this.interviewData.strengths.length > 0) {
+                    this.interviewData.strengths.forEach(strength => {
+                        const strengthEl = document.createElement('div');
+                        strengthEl.className = 'strength-item';
+                        strengthEl.innerHTML = `
+                            <span class="feedback-icon">✅</span>
+                            <div class="feedback-text">
+                                <strong>${strength.title || 'Strength'}:</strong> ${strength.description || 'Good performance noted.'}
+                            </div>
+                        `;
+                        strengthsList.appendChild(strengthEl);
+                    });
+                } else {
+                    strengthsList.innerHTML = `
+                        <div class="strength-item">
+                            <span class="feedback-icon">✅</span>
+                            <div class="feedback-text">
+                                <strong>Interview Completion:</strong> You successfully completed the interview process.
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            populateImprovements() {
+                const weaknessesList = document.getElementById('weaknessesList');
+                if (!weaknessesList) return;
+                
+                weaknessesList.innerHTML = '';
+                
+                if (this.interviewData.improvements && this.interviewData.improvements.length > 0) {
+                    this.interviewData.improvements.forEach(improvement => {
+                        const improvementEl = document.createElement('div');
+                        improvementEl.className = 'weakness-item';
+                        improvementEl.innerHTML = `
+                            <span class="feedback-icon">💡</span>
+                            <div class="feedback-text">
+                                <strong>${improvement.title || 'Improvement Area'}:</strong> ${improvement.description || 'Consider enhancing this area.'}
+                            </div>
+                        `;
+                        weaknessesList.appendChild(improvementEl);
+                    });
+                } else {
+                    weaknessesList.innerHTML = `
+                        <div class="weakness-item">
+                            <span class="feedback-icon">💡</span>
+                            <div class="feedback-text">
+                                <strong>General Improvement:</strong> Continue practicing interview skills for better performance.
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            populateQAReview() {
+                const qaReviewList = document.getElementById('qaReviewList');
+                if (!qaReviewList) return;
+                
+                qaReviewList.innerHTML = '';
+                
+                if (this.interviewData.qaReview && this.interviewData.qaReview.length > 0) {
+                    this.interviewData.qaReview.forEach((qa, index) => {
+                        const qaEl = document.createElement('div');
+                        qaEl.className = 'qa-item';
+                        qaEl.innerHTML = `
+                            <div class="question">
+                                Q${index + 1}: ${qa.question || 'Question not available'}
+                            </div>
+                            <div class="answer">
+                                ${qa.answer || 'No response recorded'}
+                            </div>
+                            <div class="answer-feedback">
+                                ${qa.feedback || 'Feedback processing...'}
+                            </div>
+                        `;
+                        qaReviewList.appendChild(qaEl);
+                    });
+                } else {
+                    qaReviewList.innerHTML = `
+                        <div class="qa-item">
+                            <div style="text-align: center; color: #6b7280; padding: 2rem;">
+                                <p><strong>No Q&A data available.</strong></p>
+                                <p>Complete an interview session to see detailed question analysis.</p>
+                                <a href="/upload/" style="
+                                    display: inline-block;
+                                    margin-top: 1rem;
+                                    background: linear-gradient(135deg, #667eea, #764ba2);
+                                    color: white;
+                                    padding: 0.75rem 1.5rem;
+                                    text-decoration: none;
+                                    border-radius: 25px;
+                                    font-weight: 600;
+                                ">Start New Interview</a>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            animateScore() {
+                const scoreCircle = document.getElementById('scoreCircle');
+                const targetAngle = (this.interviewData.score / 10) * 360;
+                
+                let currentAngle = 0;
+                const animationDuration = 2000; // 2 seconds
+                const startTime = performance.now();
+                
+                const animate = (currentTime) => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / animationDuration, 1);
+                    
+                    // Easing function for smooth animation
+                    const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                    currentAngle = targetAngle * easeOutQuart;
+                    
+                    scoreCircle.style.setProperty('--score-angle', `${currentAngle}deg`);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                };
+                
+                requestAnimationFrame(animate);
+            }
+
+            setupEventListeners() {
+                // Retake interview button
+                document.getElementById('retakeBtn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = '/upload/';
+                });
+
+                // Download report button
+                document.getElementById('downloadBtn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.downloadReport();
+                });
+            }
+
+            loadResults() {
+                // This method would typically fetch real results from your Django backend
+                // Example API call:
+                /*
+                fetch('/api/interview-results/')
+                    .then(response => response.json())
+                    .then(data => {
+                        this.interviewData = data;
+                        this.populateResults();
+                        this.animateScore();
+                    })
+                    .catch(error => {
+                        console.error('Error loading results:', error);
+                    });
+                */
+            }
+
+            downloadReport() {
+                // Generate and download a PDF report
+                const reportData = {
+                    timestamp: new Date().toISOString(),
+                    score: this.interviewData.score,
+                    feedback: {
+                        strengths: this.interviewData.strengths,
+                        improvements: this.interviewData.improvements
+                    },
+                    qaReview: this.interviewData.qaReview
+                };
+                
+                // In a real implementation, you'd call your backend to generate a PDF
+                const dataStr = JSON.stringify(reportData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `interview-report-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                // Show success message
+                this.showNotification('Report downloaded successfully! 📄');
+            }
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 2rem;
+                    right: 2rem;
+                    background: linear-gradient(135deg, #10b981, #059669);
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 10px;
+                    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+                    z-index: 1000;
+                    animation: slideInRight 0.3s ease-out;
+                `;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        // Initialize results page
+        document.addEventListener('DOMContentLoaded', () => {
+            new InterviewResults();
+        });
+    </script>
+</body>
+</html>

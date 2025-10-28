@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Your Interviewer - InterviewAI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Personality Grid */
+        .personality-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Personality Card */
+        .personality-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .personality-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .personality-card.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .personality-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--personality-color);
+            opacity: 0.7;
+        }
+
+        /* Personality Types */
+        .strict { --personality-color: linear-gradient(90deg, #dc2626, #991b1b); }
+        .friendly { --personality-color: linear-gradient(90deg, #10b981, #059669); }
+        .technical { --personality-color: linear-gradient(90deg, #3b82f6, #1e40af); }
+        .stress { --personality-color: linear-gradient(90deg, #f59e0b, #d97706); }
+
+        .personality-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            text-align: center;
+        }
+
+        .personality-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .personality-subtitle {
+            font-size: 0.9rem;
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        .personality-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .personality-features li {
+            padding: 0.5rem 0;
+            color: #4b5563;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .personality-features li::before {
+            content: '•';
+            color: var(--feature-color, #667eea);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .strict .personality-features li::before { color: #dc2626; }
+        .friendly .personality-features li::before { color: #10b981; }
+        .technical .personality-features li::before { color: #3b82f6; }
+        .stress .personality-features li::before { color: #f59e0b; }
+
+        .feedback-example {
+            background: #f8fafc;
+            border-left: 4px solid var(--personality-color);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .feedback-text {
+            font-style: italic;
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .difficulty-level {
+            display: flex;
+            justify-content: center;
+            gap: 0.25rem;
+            margin-top: 1rem;
+        }
+
+        .difficulty-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e5e7eb;
+        }
+
+        .difficulty-dot.filled {
+            background: var(--personality-color);
+        }
+
+        /* Action Buttons */
+        .action-section {
+            text-align: center;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .continue-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem 3rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .continue-btn.enabled {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .continue-btn:hover.enabled {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .continue-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .continue-btn:hover::before {
+            left: 100%;
+        }
+
+        .selection-info {
+            margin-top: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .personality-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .personality-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Choose Your Interviewer</h1>
+            <p>Select the interviewer personality that matches your preparation goals. Each type offers different challenges and feedback styles.</p>
+        </div>
+
+        <!-- Personality Selection -->
+        <form method="post" id="personalityForm">
+            {% csrf_token %}
+            <div class="personality-grid">
+                <!-- Strict HR -->
+                <div class="personality-card strict" data-personality="strict">
+                    <div class="personality-icon">🧐</div>
+                    <div class="personality-title">The Strict HR</div>
+                    <div class="personality-subtitle">Formal & Professional</div>
+                    
+                    <ul class="personality-features">
+                        <li>Very formal, no jokes or casual talk</li>
+                        <li>Focuses on behavioral & situational questions</li>
+                        <li>Cuts you off if you ramble or go off-topic</li>
+                        <li>Expects structured STAR method answers</li>
+                    </ul>
+                    
+                    <div class="feedback-example">
+                        <div class="feedback-label">Example Feedback:</div>
+                        <div class="feedback-text">"Your answer lacked structure. Use specific examples and avoid filler words."</div>
+                    </div>
+                    
+                    <div class="difficulty-level">
+                        <div class="difficulty-dot filled"></div>
+                        <div class="difficulty-dot filled"></div>
+                        <div class="difficulty-dot filled"></div>
+                        <div class="difficulty-dot"></div>
+                        <div class="difficulty-dot"></div>
+                    </div>
+                </div>
+
+                <!-- Friendly HR -->
+                <div class="personality-card friendly" data-personality="friendly">
+                    <div class="personality-icon">😄</div>
+                    <div class="personality-title">The Friendly HR</div>
+                    <div class="personality-subtitle">Welcoming & Supportive</div>
+                    
+                    <ul class="personality-features">
+                        <li>Warm personality, tries to calm nerves</li>
+                        <li>Asks easy icebreaker questions first</li>
+                        <li>Focuses on culture fit and soft skills</li>
+                        <li>Encouraging but still evaluates properly</li>
+                    </ul>
+                    
+                    <div class="feedback-example">
+                        <div class="feedback-label">Example Feedback:</div>
+                        <div class="feedback-text">"Good energy! Try to show more specific examples of your achievements."</div>
+                    </div>
+                    
+                    <div class="difficulty-level">
+                        <div class="difficulty-dot filled"></div>
+                        <div class="difficulty-dot filled"></div>
+                        <div class="difficulty-dot"></div>
+                        <div class="difficulty-dot"></div>
+                        <div class="difficulty-dot"></div>
+                    </div>
+                </div>
+
+                <!-- Technical Lead -->
+                <div class="personality-card technical" data-personality="technical">
+                    <div class="personality-icon">🧑‍💻</div>
+                    <div class="personality-title">The Technical Lead</div>
+                    <div class="personality-subtitle">Direct & Technical</div>
+                    
+                    <ul class="personality-features">
+                        <li>Straight to the point, minimal small talk</li>
+                        <li>Grills you on projects and technical details</li>
+                        <li>Asks follow-ups: "Why this technology?"</li>
+                        <li>Tests depth of technical understanding</li>
+                    </ul>
+                    
+                    <div class="feedback-example">
+                        <div class="feedback-label">Example Feedback:</div>
+                        <div class="feedback-text">"Deepen your understanding of the frameworks you mention. Be specific about your contributions."</div>
+                    </div>
+                    
+                    <div class="difficulty-level">
+                        <div class="difficulty-dot filled"></div>
+                        <div class="difficulty-dot filled"></div>
+                        <div class="difficulty-dot filled"></div>
+                        <div class="difficulty-dot filled"></div>
+                        <div class="difficulty-dot"></div>
+                    </div>
+                </div>
+
+                <!-- Stress Tester -->
+                <div class="personality-card stress" data-personality="stress">
+                    <div class="personality-icon">😤</div>
+                    <div class="personality-title">The Stress Tester</div>
+                    <div class="personality-subtitle">Challenging & Intense</div>
+                    
+                    <ul class="personality-features">
+                        <li>Purposely interrupts and challenges answers</li>
+                        <li>Throws curveballs: "Are you sure about that?"</li>
+                        <li>Tests pressure handling and quick thinking</li>
+                        <li>Pushes you to defend your statements</li>
+                    </ul>
+                    
+                    <div class="feedback-example">
+                        <div class="feedback-label">Example Feedback:</div>
+                        <div class="feedback-text">"Good handling under pressure, but stay confident in your answers. Don't second-guess yourself."</div>
+                    </div>
+                    
+                    <div class="difficulty-level">
+                        <div class="difficulty-dot filled"></div>
+                        <div class="difficulty-dot filled"></div>
+                        <div class="difficulty-dot filled"></div>
+                        <div class="difficulty-dot filled"></div>
+                        <div class="difficulty-dot filled"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hidden input for selected personality -->
+            <input type="hidden" name="personality" id="selectedPersonality" value="">
+            
+            <!-- Continue Button -->
+            <div class="action-section">
+                <button type="submit" class="continue-btn" id="continueBtn">
+                    Start Interview Session
+                </button>
+                <div class="selection-info" id="selectionInfo">
+                    Please select an interviewer personality to continue
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const personalityCards = document.querySelectorAll('.personality-card');
+        const continueBtn = document.getElementById('continueBtn');
+        const selectionInfo = document.getElementById('selectionInfo');
+        const selectedPersonalityInput = document.getElementById('selectedPersonality');
+        
+        let selectedPersonality = null;
+
+        // Handle personality selection
+        personalityCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove previous selection
+                personalityCards.forEach(c => c.classList.remove('selected'));
+                
+                // Select current card
+                card.classList.add('selected');
+                selectedPersonality = card.dataset.personality;
+                selectedPersonalityInput.value = selectedPersonality;
+                
+                // Enable continue button
+                continueBtn.classList.add('enabled');
+                selectionInfo.textContent = `Selected: ${card.querySelector('.personality-title').textContent}`;
+                selectionInfo.style.color = 'rgba(255, 255, 255, 1)';
+            });
+        });
+
+        // Handle form submission
+        document.getElementById('personalityForm').addEventListener('submit', (e) => {
+            if (!selectedPersonality) {
+                e.preventDefault();
+                selectionInfo.textContent = 'Please select an interviewer personality first!';
+                selectionInfo.style.color = '#ff6b6b';
+                return;
+            }
+            
+            // Show loading state
+            continueBtn.textContent = 'Preparing Interview...';
+            continueBtn.disabled = true;
+        });
+
+        // Add stagger animation to cards
+        personalityCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+    </script>
+</body>
+</html>
