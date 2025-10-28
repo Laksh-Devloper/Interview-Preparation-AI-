@@ -9,7 +9,7 @@ from PyPDF2 import PdfReader
 import docx
 
 # Configure Gemini AI (add your API key)
-genai.configure(api_key="AIzaSyCAEr7ehPoD8QTiKqpwcvCvdCvTjdssQ0c")
+genai.configure(api_key="Find your own pls ")
 
 def extract_text_from_pdf(file_path):
     text = ""
